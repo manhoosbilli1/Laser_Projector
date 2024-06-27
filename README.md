@@ -21,5 +21,26 @@ The timer in PWM mode will produce a PWM signal at the specified frequency the u
 I'll be following "Discovering the STM32 Microcontroller" by 
 Geoffrey Brown to get a better understanding of this controller.. too many concepts are flying right over my head as of right now. 
 
+# Update Thu/27/June/2024 PWM working now
+The pins are just outlets, the main work is done by the clock. I had to select a pin and see which timer it was attached to. these ones are all attached to timer 1 namely channel 1, 2, and 3. i enabled all of them one by one, chose the clock source as internal as the board i'm using does not have an external source. then selected following settings, note the prescaler and period value. that defined the frquency i'll get. the equation is something like (note you have to figure out which timer corresponds to which APB and use that speed instead of system clock incase its different.)
 
- 
+frquency = APB1 clock speed(not system) / ((Prescal + 1) * (period + 1))
+in my case it was = 72 Mhz / (72*100) = 10 Khz
+if want 1Khz signal then, only need to change Period. so equation becomes 
+
+period +1 = APB1 clock / (frquency * (prescale +1))
+so it should give me, 
+period + 1 = 72 Mhz / (1Khz * (71+1)) = 999 + 1 = 1000
+
+The pins were selected as: 
+![Pins](Assets/pins-forpwm.png)
+
+The settings of pwm channel was done as: 
+![Pins](Assets/timer1-settings.png)
+
+
+# Serial debugging working Thu/27/June/2024 
+I was thinking it might not be possible to get serial messages given that debugging was available. but to my surprise because of the presence of stlink programmer on board of F3-discovery board it gave me an access to virtual com port that was using the same com port as used by ide to program it. after enabling the UART1 in asynchronous mode i opened serial console within the ide and started the connection. 
+
+![Serial-success](Assets/serial-success.png)
+

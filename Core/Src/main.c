@@ -130,10 +130,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	     sprintf(MSG, "Hello Dudes! Tracing X = %d\r\n", X);
-	     HAL_UART_Transmit(&huart1, MSG, sizeof(MSG), 100);
-	     HAL_Delay(500);
-	     X++;
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -303,7 +300,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 72-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 100-1;
+  htim1.Init.Period = 1000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

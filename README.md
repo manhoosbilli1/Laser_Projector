@@ -30,7 +30,22 @@ if want 1Khz signal then, only need to change Period. so equation becomes
 
 period +1 = APB1 clock / (frquency * (prescale +1))
 so it should give me, 
-period + 1 = 72 Mhz / (1Khz * (71+1)) = 999 + 1 = 1000
+period + 1 = 72 Mhz / (1Khz * (71+1)) 
+period = 999 + 1 - 1 = 999
+
+I chekced with an oscilloscope that it indeed was giving the desired freqency!
+
+but i switched to stm32 to enjoy 16 bit PWM with possible values of 0-65573 yet i'm not sure if it generates the 1khz signal with 16 bit or not. let's find out. 
+
+The formula with which to find resolution is as follows 
+
+Resolution (R) = log(ARR (period) + 1)
+so 
+R = log(999 + 1)
+R = 9.97, approximately 10 bits. which is still better than 8 bits
+that
+gave 256 possible values. but this will give 2^10 = 1024 discrete steps.. i wonder if there is a way to get to 16 bits while having the same frequency? my question is why would frequency of the signal matter while we are only looking at duty cycle? 
+
 
 The pins were selected as: 
 ![Pins](Assets/pins-forpwm.png)
@@ -43,4 +58,21 @@ The settings of pwm channel was done as:
 I was thinking it might not be possible to get serial messages given that debugging was available. but to my surprise because of the presence of stlink programmer on board of F3-discovery board it gave me an access to virtual com port that was using the same com port as used by ide to program it. after enabling the UART1 in asynchronous mode i opened serial console within the ide and started the connection. 
 
 ![Serial-success](Assets/serial-success.png)
+
+
+# UPDATE Fri/28/June/2024 
+Tested the pwm with a green laser with a transistor (2n222) in between it and the microcontroller. at 1Khz the laser was not turning. turned on at higher frequencies. tested with 10Khz it worked. so i guess my theory about the frequency not making a difference was wrong. i wonder if a mosfet will have a different behaviour? i'll try. 
+
+Green Laser: 
+The supply to the laser is set at 6V 400mA max
+the laser at 100% duty cycle is taking 350mA max
+The laser barely turns on at ARR = 13, but is steadily turned with a dim beam at ARR = 15 or 15% duty cycle. still need to figure the minimum value it will take to turn on and offset all my future pwm signal according to that. 
+
+For further tests i need someway to control the pwm signal easily, right now i'm just uploading the program again and again with changed values. i think a potentiometer might work if i could map that to the ARR value. 
+
+PS: though the laser is a common one and a weak one i feel my eyes straining when working near it..well ^_^ it seems like 6V @350mA is 2W and is not not not common. nevermind i found glasses and will wear it hereonforth. haha!
+
+A question: Can i set only 0-100 value in CCR and that would correspond to duty cycle? no. CCR can be set 0 to value of ARR. incase of 1000 ARR it would range from 0-1000. CCR is basically used to control duty cycle. this value is compared with the ARR value to generate certain duty cycle (D). 
+
+ D = \frac{CCR}{ARR + 1} \times 100\% 
 

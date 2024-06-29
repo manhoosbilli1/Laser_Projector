@@ -1,3 +1,6 @@
+# Laser projector with 3 lasers (RGB) incident on an x-cube(dichroic) with galvanomirror
+In an attempt to create multi colored beams of laser combined and then projected onto the screen with a galvanomirror and an stm32 microcontroller. This is the stm32 part where i'll be figuring out the firmware required to steer the combined resultant laser beam and changing colors as i please.
+
 # NOTES STM Timer module 
 
 Timer module in be in several different types 

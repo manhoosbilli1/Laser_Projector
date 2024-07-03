@@ -82,7 +82,7 @@ A question: Can i set only 0-100 value in CCR and that would correspond to duty 
  # UPDATE 3/JULY/2024 Did spectroscopy! 
  Since my project revolves around changing and understanding CIE coordinates of colors and converting those values to appropriate pwm signal for the lasers to result in a desired color, i had to find the exact wavelengths of lasers that i was using. for this i used a USB2000+ spectrometer from Oceanoptics. a spectrometer basically tells you where the incident light lies on the wavelength scale and what the intensity or sautration is. i first tested with green laser. It was being problematic at first and showing multiple peaks which made us conclude that the laser needs to be exactly pointing to the slit, a slight deviation would result in multiple peaks. but even after adjusting it a multiple times we couldn't get rid of an IR peak at around 800nm which shouldn't be there.. it wasn't there with other lights.. just with this laser. It seems that the peak needs not be clipped for an accurate measurement, instead it needs to be smooth with no sharp edges. this can be fixed by reducing the intensity of the laser. i put a kind of diffuser in between the path of light and reduced the duty cycle of the laser to a value of 30 to get good results. So i got the following result from data captured with the spectrometer. 
 
-![Graph](Assets/graph1.png)
+![Graph](Assets/Figure_1.png)
 We can ignore the rest and focus on the fact that at 528.455nm it was showing the highest saturation. Checking that it indeed was giving the write results i searched and it is indeed. 
 
 ![Graph](Assets/color-green.png)

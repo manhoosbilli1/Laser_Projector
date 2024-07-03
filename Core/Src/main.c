@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <stdio.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -112,19 +112,24 @@ int main(void)
   MX_TIM1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  TIM1->CCR1 = 20;
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  char value = 50;
+  TIM1->CCR1 = value;
 
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+  /* USER CODE BEGIN WHILE *
+
   while (1)
   {
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
+	  TIM1->CCR1 = value;
+
+
+
   }
   /* USER CODE END 3 */
 }
@@ -561,7 +566,11 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+int fputc(int ch, FILE *f)
+{
+    HAL_UART_Transmit(&huart1, (unsigned char *)&ch, 1, 100);
+    return ch;
+}
 /* USER CODE END 4 */
 
 /**

@@ -113,21 +113,19 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  char value = 50;
+  char value = 100;
   TIM1->CCR1 = value;
 
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE *
+  /* USER CODE BEGIN WHILE */
 
   while (1)
   {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
-	  TIM1->CCR1 = value;
-
 
 
   }

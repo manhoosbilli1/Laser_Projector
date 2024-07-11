@@ -92,4 +92,27 @@ setting the usb2000+ inline with the beam was hard, the optical table did not ha
 Next i have to find a way to generate PWM signal of the three lasers combined to result in a specific CIE coordinate. ofcourse i'll start with one color first. say different shades of green will have differen cie coordinates and that can be acheived with pwm duty cycle? i'm not sure gotta check. 
 
 
+# Generating RGB Colors with lasers Mon/8/July/2024
+I think the nearest possible application is of an rgb led and how it's able to generate a certain a color. Since i'm using a laser it will be a bit different but i think the conversion factor can be changed. I'll look into the construction of a laser.. how it's driven and find some papers that have attempted to control color of a laser. 
 
+Side note: Just figured out why the IR wavelength was showing in the green laser. turns out the pure green lasers are rare and what we get is an IR laser lasing at 1056nm there about. The frequency is then double within the structure which halves the wavelength so we get around 532nm there about green light. 
+
+The green laser is usually made of inGan material. but since my diode is an IR one not so sure what it's made of. Here's a proper true green laser. https://ams-osram.com/products/lasers/color-lasers-eel/osram-metal-can-to56-plt5-520b i found a good paper explaining the effects of PWM with this laser. i'll read it see if it will give me some insight into having proper pwm control with the laser.
+
+Interesting facts gathered from this paper. 
+- the current and output power shows almost a linear trend with green laser. but no so much with blue laser.. when i'm looking into blue laser i'll have to keep that in mind. 
+- Higher temperature requires more current and outputs less power. 
+- Power and duty cycle graph shows best possible results with highest power, lowest current, temperature controlled at 10khz at 30C. 
+
+I haven't tried to control the laser with current yet. would i be able to? becuase the circuit inside the laser is a constant current (CC) driver. i should try atleast. and while i'm at it. i'll collect each lasers wavelength using spectrometer for CIE coordinates. i'll also measure each lasers optical power with change in voltage/pwm. 
+
+I've found that most instruments have usbtcm connection which will let us talk to the device and gather data programatically. i'll try to set that up because when the new lasers arrive i have to be able to get the data fast. even right now i have to measure, wavelenght, voltage, current, pwm value, intensity and so on.. will be hard to get 1024 (10bit) data 
+
+# Success with controlling instruments with python
+Happy to share that i've made some promising progress towards accessing instruments supporting usb with python. I call the project "Instrument Orchestra", Instrument Orchestra is now hosted on GitHub with its own repository. https://github.com/manhoosbilli1/Instrument_Orchestra I've provided a detailed step by step installation guide for first experiment. 
+
+I tried about 20 packages and different softwares to access this. thought why reinvent the wheel but none worked and almost no one was using this simple approach of accessing the instrument through serial. having some experience in electronics it was easy setting it up but installing the drivers were a pain. 
+
+My setup is going to be a sweet one with me remotely getting data from the instrument. this will allow for long lasting testing sessions even when the lab is closed. only have to have my remote laptop attached to instruments and powered on. 
+
+Next step would be integrating all 3 instruments with this software and creating a gui with it. i think a live graph of each instruments data would be nice.

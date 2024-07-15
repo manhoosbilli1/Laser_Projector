@@ -1,6 +1,9 @@
 # Laser projector with 3 lasers (RGB) incident on an x-cube(dichroic) with galvanomirror
 In an attempt to create multi colored beams of laser combined and then projected onto the screen with a galvanomirror and an stm32 microcontroller. This is the stm32 part where i'll be figuring out the firmware required to steer the combined resultant laser beam and changing colors as i please.
 
+![setup](Assets/Setup.png)
+
+
 # NOTES STM Timer module 
 
 Timer module in be in several different types 
@@ -126,3 +129,7 @@ Let's sit and think about the number of instruments i have to automate and the d
 - Need Voltage and current supplied by the PS but also will use the Sense pins on the PS to improve the data i'm getting. 
 - PWM duty cycle, say after every increase of 1% it will report the value. this pwm cycle will be the trigger to query the data on other instruments. So say duty cycle increase from 35% to 36% then it will produce an interrupt on the python script running on windows. it will take 10 measurements of the power meter and then move to voltage and current from the power supply, take 10 measurements of that. i think thats all the measurements i need. will need to do this for the whole range of each laser. i will have to change the setup for each laser though because the setup is that way. 
 For now will need to read up on some papers that have attempted to do the same because the reference part of the thesis looks empty right now. and i can't quote youtube videos or individual articles in it i suppose. 
+
+# My setup
+
+![Real_Setup](Assets/Experiment_Setup.jpeg)

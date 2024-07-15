@@ -116,3 +116,13 @@ I tried about 20 packages and different softwares to access this. thought why re
 My setup is going to be a sweet one with me remotely getting data from the instrument. this will allow for long lasting testing sessions even when the lab is closed. only have to have my remote laptop attached to instruments and powered on. 
 
 Next step would be integrating all 3 instruments with this software and creating a gui with it. i think a live graph of each instruments data would be nice.
+
+
+# Minimizing no of instruments
+Let's sit and think about the number of instruments i have to automate and the data that i actually need. 
+- wavelength of light doesn't change with duty cycle. it should in theory just behave the same way but only the brightness should increase or decrease. so i can get away with manually getting the data of each individual laser light. 
+- Optical power of laser light. i'm not sure how that would be useful in creating a relation between the color and laser input values but i should get it because thats the kind of data that will be varying. 
+- Thanks to Dr. Faisal for pointing out to lookout for the minimum voltage where we will see the light but there will be no lasing. The way to recognize that is to look for a sharp step or a change of light in the laser as you are lowering the voltage. will need to note down that voltage value for all three lasers. and will have to mark that as offset. so will calculate the duty cycle range for each laser. say a laser will stop lasing at 30% then then will make sure that in the calculation it starts with that value. otherwise the calculations might produce a result which might not be taking effect in the real world. I wonder if normalising the duty cycle will help in the calculation? not sure how that will be.
+- Need Voltage and current supplied by the PS but also will use the Sense pins on the PS to improve the data i'm getting. 
+- PWM duty cycle, say after every increase of 1% it will report the value. this pwm cycle will be the trigger to query the data on other instruments. So say duty cycle increase from 35% to 36% then it will produce an interrupt on the python script running on windows. it will take 10 measurements of the power meter and then move to voltage and current from the power supply, take 10 measurements of that. i think thats all the measurements i need. will need to do this for the whole range of each laser. i will have to change the setup for each laser though because the setup is that way. 
+For now will need to read up on some papers that have attempted to do the same because the reference part of the thesis looks empty right now. and i can't quote youtube videos or individual articles in it i suppose. 

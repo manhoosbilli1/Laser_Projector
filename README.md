@@ -3,6 +3,9 @@ In an attempt to create multi colored beams of laser combined and then projected
 
 ![setup](Assets/Setup.png)
 
+# My setup
+
+![Real_Setup](Assets/Experiment_Setup.jpeg)
 
 # NOTES STM Timer module 
 
@@ -130,6 +133,22 @@ Let's sit and think about the number of instruments i have to automate and the d
 - PWM duty cycle, say after every increase of 1% it will report the value. this pwm cycle will be the trigger to query the data on other instruments. So say duty cycle increase from 35% to 36% then it will produce an interrupt on the python script running on windows. it will take 10 measurements of the power meter and then move to voltage and current from the power supply, take 10 measurements of that. i think thats all the measurements i need. will need to do this for the whole range of each laser. i will have to change the setup for each laser though because the setup is that way. 
 For now will need to read up on some papers that have attempted to do the same because the reference part of the thesis looks empty right now. and i can't quote youtube videos or individual articles in it i suppose. 
 
-# My setup
 
-![Real_Setup](Assets/Experiment_Setup.jpeg)
+
+# Galvo's arrived! 25/July/2024 
+![Real_Setup](Assets/galvos.png)
+I decided to go with this galvo set for a few reasons
+- It offers 15Kpps which is not high and we don't need it for first prototype this brings the cost down.
+- It offers 20 degrees of travel on each galvo. 
+- Comes with a driver board already compatible with the feedback of the galvo. Saves me some work. 
+- The mounting for the galvo is pre made and it provides us with 3 standard holes of size m4 to attach it to my optical bench. 
+- The galvo's itself are standard so there will be alot of help available online. 
+
+After looking into the galvos a bit, the inner construction of each galvo was found to be very simple. Comprised of two coils on opposite ends, the shaft of the mirror having permanent magnet on it. Some feedback ciruitry, usually light detecting diodes that will change it's value depending on the mirror. Providing it information about the direction it's travelling and the current position. 
+
+The galvos work with a differential signal of 15V (so -15V to +15V) capable of detecting millivolts fluctuation and there about (I'm not really sure about this claim). 
+
+The driver board is there to take care of the nitty-gritty of the galvo, it's feedback, making sure it is where we want it to be. Keeping account of the inertia of the mirrors, sweeping up an angle at different speeds, staying locked in at an angle are all parts of the functions offered by the driver board. It has two identical blocks of circuitry on the PCB, one for X axis control the other for Y. the rest of the connectors are for input of +15 and -15 so that the galvo will receive this signal. And the inputs for the DAC signal.
+
+The board requires an analog signal as per my knowledge. For that, the STM32F3 discovery board offers DAC (Digital to analog) peripheral. This is a 12 bit dual system perfect for controlling both X and Y. capable of driving them simultaneously with the help of DMA (Direct memory access), more on these terms later. This allows us to vary the analog signal between 0 - 4069 values. However, it seems like this is still not a differential signal because it goes from 0 - +3.3V with that many steps. I believe the driver board itself will be responsible for generation a differential signal from this? Or would we have to provide. I still have to figure this out. 
+

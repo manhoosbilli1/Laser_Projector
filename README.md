@@ -152,3 +152,77 @@ The driver board is there to take care of the nitty-gritty of the galvo, it's fe
 
 The board requires an analog signal as per my knowledge. For that, the STM32F3 discovery board offers DAC (Digital to analog) peripheral. This is a 12 bit dual system perfect for controlling both X and Y. capable of driving them simultaneously with the help of DMA (Direct memory access), more on these terms later. This allows us to vary the analog signal between 0 - 4069 values. However, it seems like this is still not a differential signal because it goes from 0 - +3.3V with that many steps. I believe the driver board itself will be responsible for generation a differential signal from this? Or would we have to provide. I still have to figure this out. 
 
+# Galvo's Working 9/Aug/2024
+The Galvo's seem to be very straight forward. After contacting the manufacturer and doing some testing on my own i couldn't figure out the connectors on the board and what they do, luckily I found multiple projects where people used the same galvo. but amongst them all this detailed [article](https://hackaday.io/project/165977-laser-galvo-clock/log/164901-frame-driver-schematics) article proved to be most helpful. I realised the board i had accepted a signal of +-5V max by finding a listing on amazon of the same board. 
+
+A problem soon arose because the board needed a bipolar signal (+-5V) instead of the usual (0-5V). I found out that using a combination of 2 opamps in a certain configuration helps you amplify the signal i was providing (0-3.3V) to (0-5V) and it would add a dc offset to the signal; where usually the signal is offset from 0V now i would get the signal offset from -5V this would create a range of 10. The board then takes that voltage and converts it to appropriate +-15V for the galvo, while also adding in feedback and driving mechanism into the signal to make sure that the mirror is oriented according to the signal. 
+
+I didn't know much about opamps and even after [reading](https://www.ti.com/lit/an/sloa097/sloa097.pdf) up on it a bit and copying the circuit provided in the article i couldn't make sense of it so decided to not use it and postpone it. Had this been successful it would have permitted me to use the full range of the galvo of around 20-25 degrees. But that would also make the calculations difficult and frankly much more time taking. 
+
+By not using the bipolar signal and using the galvo's in such a configuration where the signal ranges from 0-3.3V i'm able to achieve theoretically roughly 8,5 degrees. Though it is unfortunate but i think it's for the best keeping in mind the inertia of the mirrors being used, had i used a large range it would definitely contribute to increased erratic behavior. Now that i am using shorter oscillations it will allow it to scan faster. 
+
+This is how my setup looks like now 
+[![Galvo demo](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D5RhH2gjMISg)](https://www.youtube.com/watch?v=5RhH2gjMISg)
+
+Here i've attached a signal generator to just test the behavior of the galvo. 
+
+# Further Plan
+
+I'm going to stop with the experimental setup now and think about the following steps. 
+
+- A way to generate a scanning mechanism for the laser. 
+- Writing a program that will turn on the laser only at points of interest.
+- Mixing the colors in order to create RGB colors. 
+
+Here are my initial thoughts. I was thinking of looking up some papers where people have attempted to achieve this. Then find a way for the laser to be turned on and at points that I want. I would ideally like this to be connected to galvo's feedback so that it knows exactly where the galvo mirror is pointing. I was thinking of creating some functions on the microcontroller (initially on computer using c) where it will take certain parameters and draw a number of points horizontally. the more control i have with this function the more i will be able to understand it's working. 
+
+i could build the following abilities into the function 
+- takes an array of points 
+- takes length of points 
+- take pixels of points 
+- give feedback after each point successfully drawn 
+- ability to draw primary colors on certain points 
+- abillity to draw mix of colors using hex code of a color 
+- abillity to draw mix of colors using RGB value for that pixel 
+- being able to control the speed of the line being drawn
+- being able to control the frequency of the line being drawn
+- The direction of drawing line. 
+- To map that line from Cartesian to real world
+- To read world values to Cartesian for drawing
+- Ability to take length of line in millimeters and convert that to pixel of a certain size
+- Ability to provide analytics of the process, time remaining, dots remaining, percentage etc. 
+
+The idea is to take this function, and impose it on the line scanning mechanism of the galvo, where it scans horizontally while keeping the vertical angle fixed. and then incrementing after the horizontal scan is complete. I want to be able to sort of make these two functions horizontal scan and line drawing mechanism work together, being both horizontal, I should be able to draw the appropriate number of points in that certain horizontal line from a picture and then move on to the next increment of vertical and repeat the same procedure. 
+
+Here is how it should look like. say we are given an image which after being processed looks like a vector image or a bitmap to make it simple. 
+
+`  
+byte customChar[] = {
+  B01110,
+  B10001,
+  B10001,
+  B01110,
+  B10001,
+  B10001,
+  B10001,
+  B01110
+}`
+
+![Real_Setup](Assets/bitmap.png)
+All I have to do is when I know that the galvo is at the top vertical position i.e, top right (0,0) and scans horizontally towards right, it should go something like this 
+
+```c
+pixelTobePopulated()? DrawPixel(): skip();
+```
+so it should result in the following: `FTTTF` T for true and F for false. 
+Now initially I should just give a hard code bitmap or vector image to it, after conforming it to needs such as screen size and limits of the system. 
+
+Actually while searching for something similar i stumbled upon this great [Video](https://www.youtube.com/watch?v=2bVhyB7Av8s) It showed me that if this approach does work, i could go into archives of the old CRT TV's or initial source code of old systems to figure out how they achieved this scanning methodology. 
+
+Once this part is done, and I know where my dots are landing. Then I will worry about projecting different colors or mix of colors on those spots. for that i'm thinking of following the RGB led mechanism for generating a certain color. but thats for later. 
+
+Also, I'll need someway to simulate this process. Somewhere for me to see immediately whether my code changes are working or not. I think the best way to do this would be to use the command line as my simulation monitor, I could control its cursor just like I can control galvo's position, I can control where the dot will land easily. It would be just like the old days of learning to program by printing a certain shape of a tree. 
+
+Once these initial steps are done I could then worry about the refresh rates, the FPS, the time delay for dots to stay at a certain point before moving. 
+
+Also, just to note here that I would ideally like this project to be portable so that I can experiment with it somewhere at home or someplace. That would require creating a somewhat similar optical table as in my lab by using CNC to drill holes and eventually threads into it to hold all my stuff. Hopefully I can get there because the beam alignment is a pain and shifting the project to another optical table would prove difficult. 

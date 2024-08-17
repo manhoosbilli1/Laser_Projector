@@ -226,3 +226,102 @@ Also, I'll need someway to simulate this process. Somewhere for me to see immedi
 Once these initial steps are done I could then worry about the refresh rates, the FPS, the time delay for dots to stay at a certain point before moving. 
 
 Also, just to note here that I would ideally like this project to be portable so that I can experiment with it somewhere at home or someplace. That would require creating a somewhat similar optical table as in my lab by using CNC to drill holes and eventually threads into it to hold all my stuff. Hopefully I can get there because the beam alignment is a pain and shifting the project to another optical table would prove difficult. 
+
+# Simulation worked!
+Well never a better feeling than what you thought might work actually works. After reading up more on some computer graphics turns out the mechanism with which i want to project and which was implemented on CRT tvs is called "Raster scanning" but i couldn't find any documentation of it or any work that had implemented this on galvos. after searching a bit more it turned out that this is a pretty common method and is usually hidden from public because i mean who even thinks about how characters are printed to the screen. I found some people utilizing windows.h api to print to screen from scratch and found some old commodore_64 era programs that used terminal as a screen. Most of all Javid from youtube with his game engine videos on command line helped alot. 
+
+Here is the code.
+```c
+#include <stdio.h>
+#include <unistd.h>  // for usleep()
+
+// Define the Pixel struct
+typedef struct {
+    int x;          // Position of the pixel in x
+    int y;          // Position of the pixel in y
+    int dac;        // Voltage value to be fed to DAC
+    int intensity;  // Brightness level
+    int color[3];   // RGB color options
+} Pixel;
+
+// Define the Settings struct
+typedef struct {
+    int pixelDelay;  // Delay between drawing each pixel in microseconds
+    int gridSize;    // Size of the grid (number of pixels per side)
+} Settings;
+
+// Hardcoded bitmap for the 8x8 grid with a 4x4 square in the center
+// 1 represents pixels to be drawn (green), 0 represents non-pixels (red)
+const int bitmap[8][8] = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 1, 1, 1, 1, 0, 0},
+    {0, 0, 1, 1, 1, 1, 0, 0},
+    {0, 0, 1, 1, 1, 1, 0, 0},
+    {0, 0, 1, 1, 1, 1, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+// Function to initialize the grid from the bitmap
+void initializeGrid(Pixel grid[], int gridSize, const int bitmap[8][8]) {
+    for (int y = 0; y < gridSize; y++) {
+        for (int x = 0; x < gridSize; x++) {
+            int index = y * gridSize + x;
+            grid[index].x = x;
+            grid[index].y = y;
+            if (bitmap[y][x] == 1) {
+                // Pixel value
+                grid[index].dac = 99;
+                grid[index].color[0] = 0;   // Green
+                grid[index].color[1] = 255; // Green
+                grid[index].color[2] = 0;   // Green
+            } else {
+                // Non-pixel value
+                grid[index].dac = 0;
+                grid[index].color[0] = 255; // Red
+                grid[index].color[1] = 0;   // Red
+                grid[index].color[2] = 0;   // Red
+            }
+        }
+    }
+}
+
+// Function to print the grid with colors and simulate delay per pixel
+void printGrid(const Pixel grid[], int gridSize, int pixelDelay) {
+    printf("Grid:\n");
+    for (int y = 0; y < gridSize; y++) {
+        for (int x = 0; x < gridSize; x++) {
+            int index = y * gridSize + x;
+            // ANSI escape codes to set the text color
+            printf("\033[48;2;%d;%d;%dm", grid[index].color[0], grid[index].color[1], grid[index].color[2]);
+            printf("  "); // Print a space to represent the pixel
+            // Reset text color
+            fflush(stdout);
+            printf("\033[0m");
+            // Simulate delay between printing each pixel
+            usleep(pixelDelay);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    Settings settings;
+    settings.gridSize = 8;        // Size of the grid (8x8)
+    settings.pixelDelay = .2 * 1000000; // Delay between each pixel in microseconds (0.2 seconds)
+
+    // Define a grid to hold a single image
+    Pixel grid[settings.gridSize * settings.gridSize];
+
+    initializeGrid(grid, settings.gridSize, bitmap);  // Initialize the grid from the bitmap
+
+    printGrid(grid, settings.gridSize, settings.pixelDelay);  // Display the grid
+
+    return 0;
+}
+
+```
+And this is how it looks. 
+![Alt Text](Assets/simulation_raster_scanning.gif)
+The raster projection I should say is working quite well. I've created each pixel to have position in the x,y a value which i'm calling dac value which is the actual voltage level where these pixels will correspond. For now these are just numbers. Then assigning each pixel intensity and colors. When i convert this to real galvo system i'll have to add in delta_v (voltage difference) and hope to calculate next pixel position with this. Then will first try to make it work with intensity. Possibly creating a shade of green laser along a line should be cool. The pixel delay or "Dwelling time" Is not just adding a delay here but will be useful in showing individual points or a smooth line. As you can see I've also used a bitmap to populate the array of pixels. That's because i'm hoping to create a separate software which will run on a computer, convert an image to a bitmap (for single color experiment) but instead of just having 1's and 0's it will have multiple data for each pixel, dac value, rgb values and intensity. It would then be parsed by the microcontroller, converted into multiples of horizontal lines and then projected pixel by pixel. That should create a detailed enough image for starters. 
